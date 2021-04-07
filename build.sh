@@ -4,6 +4,7 @@ type -P php     >/dev/null 2>&1 || { echo 'PHP is required to build the graphviz
 type -P dot     >/dev/null 2>&1 || { echo 'Graphviz is required to render the graphviz files! (missing `dot`)'; exit 1; }
 type -P tred    >/dev/null 2>&1 || { echo 'Graphviz is required to render the graphviz files! (missing `tred`)'; exit 1; }
 type -P convert >/dev/null 2>&1 || { echo 'ImageMagick is required to optimize the images! (missing `convert`)'; exit 1; }
+type -P pngquant >/dev/null 2>&1 || { echo 'pngquant is required to optimize the images! (missing `pngquant`)'; exit 1; }
 
 echo "Building order-full-eq.dot..."
 php order-full.php > order-full-eq.dot
@@ -25,11 +26,13 @@ do
   dot -Tpng $thing.dot > $thing.png
 
   echo "  ...and resizing..."
-  convert $thing.png png8:$thing.png8
-  mv $thing.png8 $thing.png
+  pngquant 256 < $thing.png > $thing.8.png
+  mv $thing.8.png $thing.png
 
   echo "  ...and making thumbnail..."
-  convert $thing.png -thumbnail 400x400 png8:$thing-thumb.png
+  convert $thing.png -thumbnail 400x400 $thing-thumb.png
+  pngquant 256 < $thing-thumb.png > $thing-thumb.8.png
+  mv $thing-thumb.8.png $thing-thumb.png
 done
 
 echo "Done!"
